@@ -1,0 +1,5 @@
+IP=192.168.10.110
+Port=3306
+basedatos=banco
+usuario=userClientes
+password=123
