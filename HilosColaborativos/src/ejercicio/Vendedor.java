@@ -24,13 +24,33 @@ public class Vendedor implements Runnable {
 			e.printStackTrace();
 		}
 
-		for(int i=0; i<numeroBoletos;i++) {
-			this.numeroBoletos=numeroBoletos-1;
-			System.out.printf("quedan: %d, vendido por %s %n",numeroBoletos, nombre);
-		}
-		System.out.println("Terminando de vender"+nombre);
+		boolean quedanBoletos=true;
+				
+		while(quedanBoletos == true) {
+			synchronized (Vendedor.class) {
+				
+			      if (numeroBoletos > 0) {
+	                    numeroBoletos--;
+	                    System.out.printf("Quedan: %d, vendido por %s%n", numeroBoletos, nombre);
+	                } else {
+	                    quedanBoletos = false;
+	                }
+	            }
+
+	            // Simulamos el tiempo de venta
+	            try {
+	                Thread.sleep(500);
+	            } catch (InterruptedException e) {
+	                e.printStackTrace();
+	            }
+	        }
+
+	        System.out.println("Terminando de vender " + nombre);
+	    }
+		
+		
 	}
 	
 	
 
-}
+
