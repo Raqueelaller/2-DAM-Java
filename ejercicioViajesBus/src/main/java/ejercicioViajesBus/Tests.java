@@ -47,7 +47,7 @@ public class Tests {
 			case "a": 
 				System.out.println("dime el destino");
 				String destino = teclado.nextLine();
-				System.out.println("hay "+ Viajes.plazasLibre(destino,url,usuario,password)+"plazas libres");
+				System.out.println("hay "+ ViajesDao.plazasLibre(destino,url,usuario,password)+"plazas libres");
 				break;
 				
 			case "b":
@@ -59,15 +59,15 @@ public class Tests {
 				System.out.println("dime el código del cliente");
 				int cliente=teclado.nextInt();
 				
-				Viajes.crearReserva(codigo, plazas, cliente,url,usuario,password);
+				ReservasDao.crearReserva(codigo, plazas, cliente,url,usuario,password);
 				break;
 				
 			case "e":
-				Viajes.mostrarReservas(url,usuario,password);
+				ReservasDao.mostrarReservas(url,usuario,password);
 				break;
 				
 			case "d":
-				Viajes.verViajes(url,usuario,password);
+				ViajesDao.verViajes(url,usuario,password);
 				break;
 			case "f":
 				System.out.println("hasta pronto!!");
