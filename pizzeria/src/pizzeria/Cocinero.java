@@ -2,36 +2,34 @@ package pizzeria;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Cocinero implements Runnable {
 	
 	
-	public String nombre;
-	
-	public static List<String> pizzas = new ArrayList<>();
-	
-	private Almacen almacen;
+	private Almacen cocinar;
 
-	public Cocinero(String nombre) {
-		super();
-		this.nombre = nombre;
+	public Cocinero (Almacen cocinar) {
+		this.cocinar=cocinar;
 	}
 	
-	
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-	
-	public void crearPizza(String pizza) {
-			pizzas.add(pizza);
-	}
 	
 	public void run() {
+		String pizzas[]= {
+				"margarita", "cuatro quesos", "Carbonara",""
+		};
 		
+		for (String pizza : pizzas) {
+			System.out.println("se está creando 1 pizza"+pizza);
+			cocinar.crear(pizza);
+			
+			try {
+				Thread.sleep(ThreadLocalRandom.current().nextInt(1000,5000));
+			}catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
+				System.out.println(e.getMessage());
+			}
+		}
 		
 		
 	}
