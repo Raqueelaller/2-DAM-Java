@@ -1,38 +1,36 @@
 package pizzeria;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
-public class Cocinero implements Runnable {
-	
-	
-	private Almacen cocinar;
+public class Cocinero implements Runnable  {
 
-	public Cocinero (Almacen cocinar) {
-		this.cocinar=cocinar;
-	}
-	
-	
-	public void run() {
-		String pizzas[]= {
-				"margarita", "cuatro quesos", "Carbonara",""
-		};
-		
-		for (String pizza : pizzas) {
-			System.out.println("se está creando 1 pizza"+pizza);
-			cocinar.crear(pizza);
-			
-			try {
-				Thread.sleep(ThreadLocalRandom.current().nextInt(1000,5000));
-			}catch(InterruptedException e) {
-				Thread.currentThread().interrupt();
-				System.out.println(e.getMessage());
-			}
-		}
-		
-		
-	}
-	
+    private final Almacen almacen;
 
+    private final int numPizzas;
+
+    private final Random rnd = new Random();
+
+    public Cocinero(Almacen almacen, int numPizzas) {
+        this.almacen = almacen;
+        this.numPizzas = numPizzas;
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = 1; i <= numPizzas; i++) {
+
+                Thread.sleep(300 + rnd.nextInt(400));
+
+                String pizza = "Pizza-" + i;
+
+                almacen.ponerPizza(pizza);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            almacen.terminarProduccion();
+            System.out.println("Cocinero: terminó de preparar todas las pizzas.");
+        }
+    }
 }
