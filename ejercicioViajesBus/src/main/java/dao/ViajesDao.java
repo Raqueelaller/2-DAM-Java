@@ -1,4 +1,4 @@
-package ejercicioViajesBus;
+package dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,7 +25,7 @@ public class ViajesDao {
 		int plazas = 0;
 		
 		
-		String sql = String.format("SELECT plazas_disponibles from viajes where codigo = '%s'",destino);
+		String sql = String.format("SELECT plazas_disponibles from viajes where destino = '%s'",destino);
 		try (Connection conn = DriverManager.getConnection(url,usuario,password);
 	
 						Statement stmt = conn.createStatement()	) {

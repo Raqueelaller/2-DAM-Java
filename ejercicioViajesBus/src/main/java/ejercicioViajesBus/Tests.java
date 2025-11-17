@@ -6,6 +6,11 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Scanner;
 
+import dao.ReservasDao;
+import dao.ViajesDao;
+
+
+
 public class Tests {
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
@@ -15,7 +20,7 @@ public class Tests {
 		  String usuario,password,servidor,puerto,basedatos;
 		  Properties configuracion = new Properties();
 		  
-		  	configuracion.load(new FileInputStream("viajesBus.txt"));
+		  	configuracion.load(new FileInputStream("viajesBus.cnf"));
 
 		    usuario = configuracion.getProperty("usuario");
 
@@ -51,6 +56,8 @@ public class Tests {
 				break;
 				
 			case "b":
+				System.out.println("dime el nombre del destino"); //Malaga
+				String destino1 = teclado.nextLine();
 				System.out.println("dime el código del viaje");
 				int codigo = teclado.nextInt();
 				System.out.println("dime el número de plazas que desea reservar");
@@ -59,8 +66,18 @@ public class Tests {
 				System.out.println("dime el código del cliente");
 				int cliente=teclado.nextInt();
 				
-				ReservasDao.crearReserva(codigo, plazas, cliente,url,usuario,password);
+				ReservasDao.crearReserva(codigo,destino1, plazas, cliente,url,usuario,password);
 				break;
+				
+			case "c":
+				
+				System.out.println("dime el código del cliente");
+				int cliente1=teclado.nextInt();
+				System.out.println("dime el código del viaje");
+				int codigo1 = teclado.nextInt();
+				
+				
+				ReservasDao.cancelarReserva(cliente1,codigo1, url, usuario, password);
 				
 			case "e":
 				ReservasDao.mostrarReservas(url,usuario,password);

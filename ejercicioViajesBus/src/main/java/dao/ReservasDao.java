@@ -1,4 +1,4 @@
-package ejercicioViajesBus;
+package dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,15 +23,17 @@ public class ReservasDao {
 			}
 	 }
 	
-	 public static void crearReserva(int codigoViaje, int numero_plazas, int codigo_cliente,String url, String usuario, String password) {
+	 public static void crearReserva(int codigoViaje,String destino, int numero_plazas, int codigo_cliente,String url, String usuario, String password) {
 		 int plazas_libres=0;
 		 int plazas_disponibles=0;
 		int plazas_reservadas=0;
-		 
+		
+		plazas_libres=ViajesDao.plazasLibre(destino, url, usuario, password);
+		
 		 if((plazas_libres-numero_plazas)>=0) {
 			String sql = "UPDATE reservas SET estado = 'A' WHERE codigo_cliente = ?";
-			String sql2= "UPDATE reservas SET plazas_reservadas = ? WHERE codigo_cliente = ?";
-			String sql4 = "UPDATE viajes set plazas_disponibles = plazas_disponibles - ? where codigo = ?";
+			String sql2= String.format("UPDATE reservas SET plazas_reservadas = %d WHERE codigo_cliente = ?",numero_plazas);
+			String sql4 = String.format("UPDATE viajes set plazas_disponibles = plazas_disponibles - %d where codigo = ?",numero_plazas);
 			    try (Connection conn = DriverManager.getConnection(url,usuario,password);
 			         PreparedStatement stmt = conn.prepareStatement(sql);
 			        		 PreparedStatement stmt1 = conn.prepareStatement(sql2);
@@ -39,10 +41,8 @@ public class ReservasDao {
 			    	
 			    	
 			        stmt.setInt(1, codigo_cliente);
-			        stmt1.setInt(1,numero_plazas);
-			        stmt1.setInt(2, codigo_cliente);
-			        stmt4.setInt(1, numero_plazas);
-			        stmt4.setInt(2, codigoViaje);
+			 		stmt1.setInt(1, codigo_cliente);
+			        stmt4.setInt(1, codigoViaje);
 			        // Ejecutamos el UPDATE
 			        int filas = stmt.executeUpdate();
 			        int filas2=stmt1.executeUpdate();
@@ -101,7 +101,7 @@ public class ReservasDao {
 	 public static void cancelarReserva(int codigo_cliente, int codigo_viaje,String url, String usuario, String password) {
 		 int plazas=0;
 		 String estado="";
-		 String sql6 = String.format("SELECT estado FOM reservas where codigo_cliente = %d",codigo_cliente); 
+		 String sql6 = String.format("SELECT estado FROM reservas where codigo_cliente = %d and codigo_viaje = %d",codigo_cliente,codigo_viaje); 
 		 try (Connection conn = DriverManager.getConnection(url,usuario,password);
 				 Statement stmt6 = conn.createStatement(); ){
 			 ResultSet rs = stmt6.executeQuery(sql6);
@@ -109,20 +109,30 @@ public class ReservasDao {
 					estado=rs.getString(1);
 				}
 			 if(estado.equalsIgnoreCase("A")){
-				 String sql = "UPDATE reservas SET estado = 'C' WHERE codigo_cliente = ?";
-				 String sql3 = String.format("SELECT plazas_reservadas from reservas where codigo = %d",codigo_cliente);
-				 String sql7= "UPDATE viajes SET plazas_disponibles= plazas_disponibles + ? where codigo = ?";
-					String sql2= "UPDATE reservas SET plazas_reservadas = 0 WHERE codigo_cliente = ?";
+				 String sql = "UPDATE reservas SET estado = 'C' WHERE codigo_cliente = ? and codigo_viaje = ?";
+				// String sql3 = String.format("SELECT plazas_reservadas from reservas where codigo = %d",codigo_cliente);
+				 //String sql7= "UPDATE viajes SET plazas_disponibles= plazas_disponibles + ? where codigo = ?";
+					//String sql2= "UPDATE reservas SET plazas_reservadas = 0 WHERE codigo_cliente = ?";
 					    try (Connection con = DriverManager.getConnection(url,usuario,password);
-					         PreparedStatement stmt = con.prepareStatement(sql);
-					        		 PreparedStatement stmt1 = con.prepareStatement(sql2);
-					    		Statement stmt2 = con.createStatement();
-					    				PreparedStatement stmt3 = con.prepareStatement(sql7)) {
+					         PreparedStatement stmt = con.prepareStatement(sql))
+					        		 //PreparedStatement stmt1 = con.prepareStatement(sql2);
+					    		// Statement stmt2 = con.createStatement();
+					    				//PreparedStatement stmt3 = con.prepareStatement(sql7))
+					    		{
 
 					        stmt.setInt(1, codigo_cliente);
-					        stmt1.setInt(1, codigo_cliente);
+					        stmt.setInt(2,codigo_viaje);
 					        
-					        ResultSet rs1 = stmt3.executeQuery(sql7);
+					        int filas = stmt.executeUpdate();
+					        
+					        if (filas > 0) {
+					            System.out.println("reserva realizada correctamente (" + filas + " fila/s).");
+					        } else {
+					            System.out.println("No se encontró ninguna reserva con ese código.");
+					        }
+					      //  stmt1.setInt(1, codigo_cliente);
+					        
+					       /* ResultSet rs1 = stmt3.executeQuery(sql7);
 					     		if(rs1.next()) {
 								plazas=rs.getInt(1);
 							}
@@ -130,32 +140,32 @@ public class ReservasDao {
 					     	stmt3.setInt(1, plazas);
 					     	stmt.setInt(2, codigo_viaje);
 					     	
-					     	int filas = stmt.executeUpdate();
+					     	
 					        int filas2=stmt1.executeUpdate(); 
 					     		
-					        if (filas > 0 && filas2 >0) {
-					            System.out.println("reserva realizada correctamente (" + filas + " fila/s).");
-					        } else {
-					            System.out.println("No se encontró ninguna reserva con ese código.");
-					        }
+					       */
 
 					    } catch (Exception e) {
 					        System.out.println("Error al actualizar: " + e.getMessage());
 					    }
 			 }else {
-				 String sql = "UPDATE reservas SET estado = 'C' WHERE codigo_cliente = ?";
-					String sql2= "UPDATE reservas SET plazas_reservadas = 0 WHERE codigo_cliente = ?";
+				 String sql = "UPDATE reservas SET estado = 'C' WHERE codigo_cliente = ? and codigo_viaje = ?";
+					//String sql2= "UPDATE reservas SET plazas_reservadas = 0 WHERE codigo_cliente = ?";
 					    try (Connection con = DriverManager.getConnection(url,usuario,password);
-					         PreparedStatement stmt = con.prepareStatement(sql);
-					        		 PreparedStatement stmt1 = con.prepareStatement(sql2)) {
+					         PreparedStatement stmt = con.prepareStatement(sql))
+					        		// PreparedStatement stmt1 = con.prepareStatement(sql2))
+					    		{
 
 					        stmt.setInt(1, codigo_cliente);
-					        stmt1.setInt(1, codigo_cliente);
+					        stmt.setInt(2,codigo_viaje);
+					        int filas = stmt.executeUpdate();
 					        
-					     	int filas = stmt.executeUpdate();
-					        int filas2=stmt1.executeUpdate(); 
+					       //tmt1.setInt(1, codigo_cliente);
+					        
+					   	
+					     // int filas2=stmt1.executeUpdate(); 
 					     		
-					        if (filas > 0 && filas2 >0) {
+					        if (filas > 0 ) {
 					            System.out.println("reserva realizada correctamente (" + filas + " fila/s).");
 					        } else {
 					            System.out.println("No se encontró ninguna reserva con ese código.");
@@ -167,7 +177,7 @@ public class ReservasDao {
 				 
 			 }
 		 } catch (Exception e) {
-			 
+			 System.out.println(e.getMessage());
 		 }
 		 
 		
