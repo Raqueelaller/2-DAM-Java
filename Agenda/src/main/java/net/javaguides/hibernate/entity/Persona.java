@@ -23,7 +23,7 @@ public class Persona{
 	@Column(name = "telefono")
 	private int telefono;
 	
-	@Column(name = "alutra")
+	@Column(name = "altura")
 	private int altura;
 	
 	
