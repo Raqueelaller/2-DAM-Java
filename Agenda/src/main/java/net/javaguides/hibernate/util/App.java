@@ -5,7 +5,9 @@ import net.javaguides.hibernate.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.InputMismatchException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class App {
@@ -18,7 +20,7 @@ public class App {
         mostrarMenu();
     }
     
-    public static void mostrarMenu() {
+    public static void mostrarMenu() throws InputMismatchException {
         int opcion;
         
         do {
@@ -30,9 +32,18 @@ public class App {
             System.out.println("5.  Eliminar persona");
             System.out.println("0.  Salir");
             System.out.print("Selecciona una opción: ");
-            
+            try {
             opcion = scanner.nextInt();
-            scanner.nextLine(); // Limpiar buffer
+            }catch(IllegalStateException x) {
+            	System.out.println(x.getMessage());
+            	opcion=7;
+            }catch(NoSuchElementException x) {
+            	System.out.println(x.getMessage());
+            	opcion=7;
+            }
+            
+            
+            scanner.nextLine();     
             
             switch (opcion) {
                 case 1:
@@ -80,7 +91,7 @@ public class App {
         
         System.out.print("Altura (cm): ");
         int altura = scanner.nextInt();
-        scanner.nextLine(); // Limpiar buffer
+        scanner.nextLine(); 
         
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = null;
@@ -135,7 +146,7 @@ public class App {
         
         System.out.print("Ingresa el código de la persona: ");
         int codigo = scanner.nextInt();
-        scanner.nextLine(); // Limpiar buffer
+        scanner.nextLine(); 
         
         Session session = HibernateUtil.getSessionFactory().openSession();
         
@@ -162,7 +173,7 @@ public class App {
         
         System.out.print("Ingresa el código de la persona a actualizar: ");
         int codigo = scanner.nextInt();
-        scanner.nextLine(); // Limpiar buffer
+        scanner.nextLine(); 
         
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = null;
@@ -218,7 +229,7 @@ public class App {
         
         System.out.print("Ingresa el código de la persona a eliminar: ");
         int codigo = scanner.nextInt();
-        scanner.nextLine(); // Limpiar buffer
+        scanner.nextLine(); 
         
         System.out.print("¿Estás seguro de eliminar esta persona? (s/n): ");
         String confirmacion = scanner.nextLine();
