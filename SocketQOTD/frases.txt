@@ -1,0 +1,23 @@
+# Archivo de citas para el servidor QOTD
+# Una cita por línea
+
+La vida es una aventura, atrévete. - Teresa de Calcuta
+El único modo de hacer un gran trabajo es amar lo que haces. - Steve Jobs
+La mejor venganza es un éxito enorme. - Frank Sinatra
+No cuentes los días, haz que los días cuenten. - Muhammad Ali
+La mente es todo. Lo que pienses, en eso te convertirás. - Buda
+La única limitación es la que pones en tu mente. - Desconocido
+La felicidad no es algo hecho. Viene de tus propias acciones. - Dalai Lama
+La calidad nunca es un accidente; siempre es el resultado de un esfuerzo de la inteligencia. - John Ruskin
+La lógica te llevará de A a B. La imaginación te llevará a todas partes. - Albert Einstein
+El éxito es ir de fracaso en fracaso sin perder el entusiasmo. - Winston Churchill
+La creatividad es la inteligencia divirtiéndose. - Albert Einstein
+La educación es el arma más poderosa que puedes usar para cambiar el mundo. - Nelson Mandela
+La verdadera medida de un hombre no es cómo se comporta en momentos de comodidad, sino cómo se comporta en momentos de controversia. - Martin Luther King Jr.
+La vida es 10% lo que me pasa y 90% cómo reacciono a ello. - Charles Swindoll
+El único lugar donde el éxito viene antes que el trabajo es en el diccionario. - Vidal Sassoon
+La perseverancia es el trabajo duro que haces después de cansarte del trabajo duro que ya hiciste. - Newt Gingrich
+La mejor manera de predecir el futuro es creándolo. - Peter Drucker
+La confianza en sí mismo es el primer secreto del éxito. - Ralph Waldo Emerson
+La paciencia es amarga, pero su fruto es dulce. - Jean-Jacques Rousseau
+La simplicidad es la máxima sofisticación. - Leonardo da Vinci

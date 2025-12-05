@@ -6,6 +6,8 @@ import net.javaguides.hibernate.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.List;
@@ -147,8 +149,10 @@ public class App {
         
         System.out.print("año: ");
         int anyo = scanner.nextInt();
-        scanner.nextLine();
+        int anyoActual= LocalDate.now().getYear();
+        if (anyo==anyoActual) {
         
+        scanner.nextLine();
         System.out.println("nombre del cantante");
         String nombreCantante = scanner.nextLine();
         
@@ -190,6 +194,9 @@ public class App {
         }
         
         scanner.nextLine();
+    } else {
+    	while()
+    }
     }
     
     public static void buscarCantante() {
