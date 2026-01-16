@@ -1,0 +1,269 @@
+========================================
+GUIA-COMANDOS-WINDOWS-JAVA-TCP.txt
+(Servidor/Cliente TCP + TXT + JAR + Maven)
+========================================
+
+NOTA: Este archivo es para copiar/pegar comandos en Windows (CMD/PowerShell) y recordar
+dónde colocar archivos TXT para que viajen dentro de un .jar.
+Incluye explicación de cada comando.
+
+============================================================
+1) VER PUERTOS EN WINDOWS (QUIEN ESCUCHA / QUIEN USA UN PUERTO)
+============================================================
+
+[CMD] Ver TODAS las conexiones y puertos en escucha (LISTENING)
+- -a: muestra todas las conexiones y puertos en escucha
+- -n: muestra direcciones/puertos en formato numérico (no resuelve DNS)
+- -o: muestra el PID (ID del proceso) asociado
+netstat -ano
+
+[CMD] Filtrar por un puerto concreto (ej: 5050)
+netstat -ano | findstr :5050
+
+[CMD] Filtrar solo los que estén escuchando (LISTENING) y un puerto concreto
+netstat -ano | findstr :5050 | findstr LISTENING
+
+[PowerShell] Ver qué proceso (PID) está escuchando un puerto
+Get-NetTCPConnection -LocalPort 5050 -State Listen | Select-Object LocalPort, OwningProcess
+
+[PowerShell] Ver el nombre del proceso (a partir de un PID)
+Get-Process -Id 12345
+
+[CMD] Ver nombre del proceso a partir del PID (alternativa CMD)
+tasklist /FI "PID eq 12345"
+
+============================================================
+2) MATAR PROCESOS / PARAR UN PUERTO CONCRETO
+============================================================
+
+Paso típico:
+1) netstat -ano | findstr :5050   -> te da un PID (ej: 12345)
+2) taskkill /PID 12345 /F         -> mata el proceso
+
+[CMD] Matar proceso por PID (forzado)
+taskkill /PID 12345 /F
+
+[PowerShell] Matar proceso por PID (forzado)
+Stop-Process -Id 12345 -Force
+
+[PowerShell] Matar por nombre (ej: java) OJO: mata TODOS los java (peligroso)
+Stop-Process -Name java -Force
+
+============================================================
+3) PROBAR SI UN PUERTO ESTA ABIERTO / SI EL SERVIDOR RESPONDE
+============================================================
+
+[PowerShell] Test rápido de conexión TCP (sin enviar datos, solo conecta)
+Test-NetConnection 127.0.0.1 -Port 5050
+
+[PowerShell] Si necesitas ver más detalle
+Test-NetConnection 127.0.0.1 -Port 5050 -InformationLevel Detailed
+
+OPCIONAL (muy útil si lo tienes):
+- En Git Bash / WSL puedes probar con netcat:
+  nc 127.0.0.1 5050
+  (y escribes comandos a mano, enter para enviar)
+
+============================================================
+4) FIREWALL (SI TE CONECTAS DESDE OTRO PC EN LA RED)
+============================================================
+
+Si el servidor está en un PC y el cliente en otro, puede bloquear el Firewall.
+
+[PowerShell (Admin)] Abrir puerto entrante TCP 5050 en Firewall
+New-NetFirewallRule -DisplayName "TCP 5050 ServidorJava" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 5050
+
+[PowerShell (Admin)] Borrar esa regla (si la quieres quitar)
+Remove-NetFirewallRule -DisplayName "TCP 5050 ServidorJava"
+
+============================================================
+5) COMPILAR Y EJECUTAR JAVA “NORMAL” (SIN MAVEN) DESDE TERMINAL
+============================================================
+
+Estructura típica:
+- ServidorTxtTCP.java
+- ClienteTxtTCP.java
+- productos.txt
+
+[CMD o Bash] Compilar
+javac ServidorTxtTCP.java ClienteTxtTCP.java
+
+[CMD o Bash] Ejecutar servidor (deja esta terminal abierta)
+java ServidorTxtTCP
+
+[CMD o Bash] Ejecutar cliente (en otra terminal)
+java ClienteTxtTCP 127.0.0.1 5050 LIST
+java ClienteTxtTCP 127.0.0.1 5050 GET 2
+java ClienteTxtTCP 127.0.0.1 5050 FIND cola
+
+IMPORTANTE:
+- Si tu servidor lee el TXT con Path.of("productos.txt"), el TXT debe estar en el
+  "directorio actual" desde el que lanzas `java ...`.
+
+============================================================
+6) CREAR UN .JAR (PROYECTO JAVA SIN MAVEN)
+============================================================
+
+OBJETIVO: empaquetar .class en un .jar ejecutable (con Main-Class).
+
+PASO A: Compilar a una carpeta /out
+[CMD]
+mkdir out
+javac -d out ServidorTxtTCP.java ClienteTxtTCP.java
+
+PASO B: Crear un MANIFEST (archivo de texto) para el jar ejecutable
+Crea un archivo llamado: manifest-servidor.txt  con este contenido EXACTO:
+(Main-Class es el nombre completo de la clase con main, si está en paquete incluye paquete)
+--------------------------------
+Main-Class: ServidorTxtTCP
+
+--------------------------------
+MUY IMPORTANTE:
+- Debe terminar con una línea en blanco (Enter al final).
+
+PASO C: Crear jar del servidor
+[CMD]
+jar cfm servidor.jar manifest-servidor.txt -C out .
+
+PASO D: Ejecutar jar del servidor
+[CMD]
+java -jar servidor.jar
+
+Repite lo mismo para cliente.jar (cambiando Main-Class a ClienteTxtTCP).
+
+------------------------------------------------------------
+6.1) ¿Y EL ARCHIVO productos.txt DENTRO DEL JAR? (NO “SUELTO”)
+------------------------------------------------------------
+
+Hay dos formas:
+
+FORMA 1 (SIMPLE, examen-friendly):
+- NO lo metes dentro del jar.
+- Dejas productos.txt junto al jar (misma carpeta) y el servidor lo lee por ruta relativa.
+PROS: fácil.
+CONTRAS: si te llevas solo el jar sin el txt, no funciona.
+
+FORMA 2 (PRO, recomendado):
+- Metes productos.txt dentro del jar como recurso (resource).
+- Y lo lees con getResourceAsStream() desde el classpath (NO con Path.of).
+
+Para empaquetarlo manualmente sin Maven:
+1) Mete productos.txt en una carpeta resources:
+   resources/productos.txt
+2) Copia resources dentro de out:
+   xcopy resources out /E /I
+3) Al crear el jar con "-C out ." ya incluirá productos.txt dentro.
+
+EN EL CÓDIGO (servidor) DEBES LEER ASI (ejemplo conceptual):
+- InputStream is = ServidorTxtTCP.class.getResourceAsStream("/productos.txt");
+
+Si sigues usando Path.of("productos.txt"), NO lo leerá desde dentro del jar.
+
+============================================================
+7) MAVEN: CREAR .JAR DE UN PROYECTO MAVEN JAVA
+============================================================
+
+Comandos Maven típicos (desde la carpeta donde está pom.xml):
+
+[CMD / PowerShell / Bash] Compilar + tests
+mvn clean test
+
+[CMD / PowerShell / Bash] Empaquetar (genera target/*.jar)
+mvn clean package
+
+[CMD / PowerShell / Bash] Empaquetar saltando tests (si vas con prisa)
+mvn clean package -DskipTests
+
+Después mira la carpeta:
+target/
+
+============================================================
+8) MAVEN: DONDE PONER EL ARCHIVO productos.txt PARA QUE VIAJE EN EL JAR
+============================================================
+
+En Maven, los recursos van en:
+src/main/resources/
+
+Ejemplo:
+src/main/resources/productos.txt
+
+Maven automáticamente copia eso al classpath dentro del jar.
+
+EN EL CODIGO, para leerlo desde el jar:
+InputStream is = TuClase.class.getResourceAsStream("/productos.txt");
+
+Si quieres leerlo como texto:
+BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+
+NO uses Path.of("src/main/resources/...") en runtime, porque eso no existirá igual cuando sea jar.
+
+============================================================
+9) MAVEN: HACER EL JAR EJECUTABLE (QUE `java -jar` FUNCIONE)
+============================================================
+
+Si tu jar NO tiene Main-Class en su manifest, `java -jar` fallará.
+
+Opciones:
+A) Usar el plugin "maven-jar-plugin" + manifest (jar simple)
+B) Usar "maven-shade-plugin" (jar "fat/uber" con dependencias)
+
+Para proyectos sin dependencias externas, A suele bastar.
+Para proyectos con dependencias, B suele ser mejor.
+
+Si tu examen no exige tocar pom.xml, lo típico es:
+- Ejecutar con classpath:
+  java -cp target/tu-jar.jar paquete.ClaseMain
+
+Pero si quieres el jar "ejecutable", necesitas Main-Class.
+
+============================================================
+10) EJECUTAR SERVIDOR Y CLIENTE COMO JAR
+============================================================
+
+Servidor:
+java -jar servidor.jar
+
+Cliente (con parámetros):
+java -jar cliente.jar 127.0.0.1 5050 LIST
+java -jar cliente.jar 127.0.0.1 5050 GET 2
+
+============================================================
+11) CONSEJOS CLAVE PARA QUE FUNCIONE BIEN EN EXAMEN (TCP LINE-BASED)
+============================================================
+
+- Protocolo por líneas:
+  - Cliente envía comando + '\n' (println).
+  - Servidor responde con líneas.
+  - Para respuestas "de bloque" (LIST/FIND), usa un marcador final tipo "END".
+    Así el cliente sabe cuándo parar de leer.
+
+- Encoding:
+  - Usa UTF-8 en InputStreamReader/OutputStreamWriter.
+
+- AutoFlush:
+  - PrintWriter(..., true) para que println envíe inmediatamente (sin quedarse en buffer).
+
+- Recursos:
+  - Si el TXT debe ir dentro del jar, léelo con getResourceAsStream().
+  - Si el TXT va fuera (junto al jar), léelo con Path.of("productos.txt") y cuida el directorio
+    desde el que ejecutas.
+
+============================================================
+12) COMANDOS RAPIDOS PARA “RESOLVER” PUERTO OCUPADO
+============================================================
+
+1) Ver quién escucha:
+netstat -ano | findstr :5050
+
+2) Ver el proceso:
+tasklist /FI "PID eq 12345"
+
+3) Matar:
+taskkill /PID 12345 /F
+
+4) Reintentar:
+java -jar servidor.jar
+
+============================================================
+FIN
+============================================================
