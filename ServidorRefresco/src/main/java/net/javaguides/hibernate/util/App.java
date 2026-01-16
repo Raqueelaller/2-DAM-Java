@@ -78,23 +78,22 @@ public class App {
              )) {
 				 
 				 boolean bandera = true;
-				// CREAR UNA SOLA SESIÓN para todo el ciclo del cliente
-			        Session session = HibernateUtil.getSessionFactory().openSession();
+
 				 
 					 String mensajeCliente;
-					 listarRefrescos(salida,session);
+					 listarRefrescos(salida);
 		        	 salida.println("Si quieres pedir, el formato es: Pide (el refresco que quieras) (el nombre del cliente)");
 		        	 salida.println("Si quieres recargar, el formato es: Regcarga (id del refresco) (cantidad) (codigo_admin)");
 		        	 salida.println("Si quieres terminar, pon 'fin'");
 					 while (bandera &&(mensajeCliente = reader.readLine()) != null) {
 						 mensajeCliente=mensajeCliente.trim();
 						 if(mensajeCliente.equalsIgnoreCase("fin")|| mensajeCliente.equalsIgnoreCase("")) {
-							 
+							 socketCliente.close();
 							 bandera=false;
 						 }else {
 							 
-							 actualizarMaquina(mensajeCliente,salida,session);
-							 listarRefrescos(salida,session);
+							 actualizarMaquina(mensajeCliente,salida);
+							 listarRefrescos(salida);
 				        	 salida.println("Si quieres pedir, el formato es: Pide (el refresco que quieras) (el nombre del cliente)");
 				        	 salida.println("Si quieres recargar, el formato es: Regcarga (id del refresco) (cantidad) (codigo_admin)");
 				        	 salida.println("Si quieres terminar, pon 'fin'");
@@ -102,9 +101,8 @@ public class App {
 						 }
 					 }
 				 
-					 if (!socketCliente.isClosed()) {
-						    socketCliente.close();
-						}
+					
+						
 					 
 		 } catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -117,12 +115,12 @@ public class App {
     
     }
     
-     private static void actualizarMaquina(String respuesta, PrintWriter salida, Session session) {
+     private static void actualizarMaquina(String respuesta, PrintWriter salida) {
     	 
          Transaction transaction = null;
     	 respuesta=respuesta.trim().toLowerCase();
     	 final String codigo_admin="123";
-    	 
+    	 Session session = HibernateUtil.getSessionFactory().openSession();
          
          try {
         	 List<Refrescos> refrescos = session.createQuery("FROM Refrescos ORDER BY id", Refrescos.class).list();
@@ -144,7 +142,7 @@ public class App {
 			            refresco.setExistencia(refresco.getExistencia() - 1);
 			            
 			            // Hacer merge para sincronizar con BD
-			            Refrescos refrescoActualizado = (Refrescos) session.merge(refresco);
+			            session.merge(refresco);
 			    
 			            Pedidos pedido = new Pedidos(0,nombreCliente,refresco);
 			            session.persist(pedido);
@@ -163,7 +161,8 @@ public class App {
             		 int cantidad = Integer.parseInt(respuestita[2]);
             		 boolean bandera1=false;
             		 if (cantidad <0) {
-            			 salida.println("no se puede recargar esa cantidad");
+			            salida.println("no se puede recargar esa cantidad");
+
             			 cantidad=0;
             		 }
             		 for (Refrescos refresco : refrescos) {
@@ -173,7 +172,7 @@ public class App {
      						 // aumentar existencia
      						int nuevaExistencia = refresco.getExistencia() + cantidad;
      			            refresco.setExistencia(nuevaExistencia);
-     			            
+
      			            // Hacer merge para sincronizar con BD
      			           session.merge(refresco);
      			           transaction.commit();
@@ -197,7 +196,8 @@ public class App {
     		 
     	 }
      
-     public static void listarRefrescos(PrintWriter salida, Session session) {
+     public static void listarRefrescos(PrintWriter salida) {
+    	 Session session = HibernateUtil.getSessionFactory().openSession();
 
          Transaction transaction = null;
          try {

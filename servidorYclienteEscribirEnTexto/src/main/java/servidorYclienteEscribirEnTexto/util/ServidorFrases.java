@@ -89,18 +89,18 @@ public class ServidorFrases {
     // ============================
     // CARGAR FRASES DESDE RESOURCES
     // ============================
-    private static void cargarFrasesDesdeResources() {
+    private static void cargarFrasesDesdeResources(String texto) {
 
         frases = new ArrayList<>();
-
+        texto = "/"+texto;
         try {
 
             // Leer recurso desde el classpath del JAR
             InputStream is = ServidorFrases.class
-                    .getResourceAsStream("/frases.txt");
+                    .getResourceAsStream(texto);
 
             if (is == null) {
-                frases.add("ERROR: frases.txt no encontrado");
+                frases.add("ERROR el fichero no existe");
                 return;
             }
 

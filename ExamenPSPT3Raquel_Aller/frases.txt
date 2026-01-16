@@ -1,0 +1,7 @@
+hola adolfo, como estas?
+esta es ua prueba de que todo funciona
+me despido
+fin
+hola adolfo
+esta es una prueba de que el programa funciona
+fin
