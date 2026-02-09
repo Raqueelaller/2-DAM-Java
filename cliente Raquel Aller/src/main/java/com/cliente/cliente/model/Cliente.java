@@ -42,6 +42,8 @@ public class Cliente {
 	@Column(name = "fecha_baja")
 	private LocalDateTime fechaBaja;
 	
+	@Column(name="password")
+	private String passwordHash;
 
 	public String getNombre() {
 		return nombre;
@@ -102,6 +104,15 @@ public class Cliente {
 	public Integer getId() {
 		return id;
 	}
+
+	public String getPasswordHash() {
+		return passwordHash;
+	}
+
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+	
 	
 	
 	

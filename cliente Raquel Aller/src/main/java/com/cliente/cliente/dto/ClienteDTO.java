@@ -23,6 +23,8 @@ public class ClienteDTO {
 	
 	
 	private LocalDateTime fechaBaja;
+	
+	private String password;
 
 
 	public ClienteDTO() {
@@ -97,6 +99,16 @@ public class ClienteDTO {
 
 	public void setFechaBaja(LocalDateTime fechaBaja) {
 		this.fechaBaja = fechaBaja;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	

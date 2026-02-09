@@ -18,13 +18,13 @@ import com.cliente.cliente.repository.ClienteRepository;
 import com.cliente.cliente.service.ClienteService;
 
 @RestController
-@RequestMapping("/api/clientes")
+@RequestMapping("/api")
 public class ClienteController {
 
 	
 	private final ClienteService clienteService;
 
-	public ClienteController(ClienteService clienteService, ClienteRepository clienteRepository) {
+	public ClienteController(ClienteService clienteService) {
 		super();
 		this.clienteService = clienteService;
 	}
