@@ -19,14 +19,11 @@ public class AnuncioController {
         this.anuncioService = anuncioService;
     }
 
-    
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/buscar/{texto}")
     public List<Anuncio> buscar(@PathVariable String texto) {
         return anuncioService.buscarPorTitulo(texto);
     }
 
-   
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/insertar")
     public Anuncio insertar(@RequestBody AnuncioDTO dto) {
